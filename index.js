@@ -62,7 +62,7 @@ app.get('/goals', function(req, res) {
 // (Accessed at POST http://localhost:8080/goals)
 app.post('/goals', function(req, res) {
   var goal = {
-    description: req.body.description,
+    description: req.body,
   };
   db.insert(goal, function(err, goal) {
     if (err) res.send(err);
