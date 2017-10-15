@@ -2,6 +2,30 @@ var express = require('express'),
   app = express(),
   port = Number(process.env.PORT || 8080);
 
+
+//PsRSER
+var  bodyParser = require('body-parser'), // Middleware to read POST data
+
+// Set up body-parser.
+// To parse JSON:
+app.use(bodyParser.json());
+// To parse form data:
+app.use(bodyParser.urlencoded({
+  extended: true
+}));
+
+// GET all goals.
+// (Accessed at GET http://localhost:8080/goals)
+app.get('/goals', function(req, res) {
+  db.find({}).sort({
+    updatedAt: -1
+  }).exec(function(err, goals) {
+    if (err) res.send(err);
+    res.json(goals);
+  });
+});
+
+
 // DATABASE
 // ===============================================
 
