@@ -1,27 +1,41 @@
-var http = require("http");
-var url = require("url");
-var querystring = require("querystring");
-var server = http.createServer();
-var port = process.env.PORT || 5000;
+var express = require('express'),
+  app = express(),
+  port = Number(process.env.PORT || 8080);
 
-server.on("request", function (request, response) {
-  var uri = url.parse(request.url);
-  var qs = uri.query ? querystring.parse(uri.query) : {};
+// DATABASE
+// ===============================================
 
-  var status = qs.status || 200;
-  var contentType = qs.contentType || "text/plain";
-  var body = qs.body || "hello there!";
-
-  response.writeHead(status, {
-    "Content-Type": contentType,
-    "Content-Length": body.length
-  });
-
-  console.log(uri.pathname + " - HTTP " + status + " (" + contentType + "): " + body);
-
-  response.end(body);
+// Setup the database.
+var Datastore = require('nedb');
+var db = new Datastore({
+  filename: 'goals.db', // provide a path to the database file 
+  autoload: true, // automatically load the database
+  timestampData: true // automatically add and manage the fields createdAt and updatedAt
 });
 
-server.listen(port, function () {
-  console.log("listening on port " + port);
+// Let us check that we can save to the database.
+// Define a goal.
+var goal = {
+  description: 'Do 10 minutes meditation every day',
+};
+
+// Save this goal to the database.
+db.insert(goal, function(err, newGoal) {
+  if (err) console.log(err);
+  console.log(newGoal);
+});
+
+// ROUTES
+// ===============================================
+
+// Define the home page route.
+app.get('/', function(req, res) {
+  res.send('Our first route is working. :)');
+});
+
+// START THE SERVER
+// ===============================================
+
+app.listen(port, function() {
+  console.log('Listening on port ' + port);
 });
