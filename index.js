@@ -30,7 +30,7 @@ db.insert(goal, function(err, newGoal) {
 
 // Define the home page route.
 app.get('/', function(req, res) {
-  res.send('Our first route is working. :)');
+  res.send('Our first route is working. :)!!!');
 });
 
 // START THE SERVER
