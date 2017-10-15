@@ -1,11 +1,24 @@
+
+
+
+
+
+// server.js
+
+// DEPENDENCIES
+// ===============================================
+
 var express = require('express'),
   app = express(),
-  
-//PsRSER
-  bodyParser = require('body-parser'); // Middleware to read POST data
+  bodyParser = require('body-parser'), // Middleware to read POST data
+  exphbs = require('express-handlebars');
 
+// SETUP
+// ===============================================
 
+// Set the port number.
 var port = process.env.PORT || 8000;
+
 // Set up body-parser.
 // To parse JSON:
 app.use(bodyParser.json());
@@ -13,6 +26,31 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({
   extended: true
 }));
+
+
+// Tell the app that the templating engine is Handlebars.
+app.engine('handlebars',
+  // Pass default configuration to express-handlebars module.
+  exphbs({
+    defaultLayout: 'main'
+  }));
+
+// Tell the app that the view engine is also Handlebars.
+app.set('view engine', 'handlebars');
+
+// DATABASE
+// ===============================================
+
+// Setup the database.
+var Datastore = require('nedb');
+var db = new Datastore({
+  filename: 'goals.db', // Provide a path to the database file.
+  autoload: true, // Automatically load the database.
+  timestampData: true // Add and manage the fields createdAt and updatedAt.
+});
+
+// ROUTES
+// ===============================================
 
 // GET all goals.
 // (Accessed at GET http://localhost:8080/goals)
@@ -25,36 +63,60 @@ app.get('/goals', function(req, res) {
   });
 });
 
-
-// DATABASE
-// ===============================================
-
-// Setup the database.
-var Datastore = require('nedb');
-var db = new Datastore({
-  filename: 'goals.db', // provide a path to the database file 
-  autoload: true, // automatically load the database
-  timestampData: true // automatically add and manage the fields createdAt and updatedAt
+// POST a new goal.
+// (Accessed at POST http://localhost:8080/goals)
+app.post('/goals', function(req, res) {
+  var goal = {
+    description: req.body.description,
+  };
+  db.insert(goal, function(err, goal) {
+    if (err) res.send(err);
+    res.json(goal);
+  });
 });
 
-// Let us check that we can save to the database.
-// Define a goal.
-var goal = {
-  description: 'Do 10 minutes meditation every day',
-};
 
-// Save this goal to the database.
-db.insert(goal, function(err, newGoal) {
-  if (err) console.log(err);
-  console.log(newGoal);
+// GET a goal.
+// (Accessed at GET http://localhost:8080/goals/goal_id)
+app.get('/goals/:id', function(req, res) {
+  var goal_id = req.params.id;
+  db.findOne({
+    _id: goal_id
+  }, {}, function(err, goal) {
+    if (err) res.send(err);
+    res.json(goal);
+  });
 });
 
-// ROUTES
-// ===============================================
+// DELETE a goal.
+// (Accessed at DELETE http://localhost:8080/goals/goal_id)
+app.delete('/goals/:id', function(req, res) {
+  var goal_id = req.params.id;
+  db.remove({
+    _id: goal_id
+  }, {}, function(err, goal) {
+    if (err) res.send(err);
+    res.sendStatus(200);
+  });
+});
 
-// Define the home page route.
+// GET the home page
+// (Accessed at GET http://localhost:8080/)
 app.get('/', function(req, res) {
-  res.send('Our first route is working. :)!!!');
+  db.find({}).sort({
+    updatedAt: -1
+  }).exec(function(err, goals) {
+    if (err) res.send(err);
+    var obj = {
+      goals: goals,
+      helpers: {
+        formatCreatedAt: function() {
+          return this.createdAt.toLocaleDateString();
+        }
+      }
+    };
+    res.render('index', obj);
+  });
 });
 
 // START THE SERVER
