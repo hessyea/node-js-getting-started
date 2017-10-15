@@ -1,11 +1,11 @@
 var express = require('express'),
   app = express(),
-  port = Number(process.env.PORT || 5000);
-
-
+  
 //PsRSER
-var  bodyParser = require('body-parser'), // Middleware to read POST data
+  bodyParser = require('body-parser'), // Middleware to read POST data
 
+
+var port = Number(process.env.PORT || 5000);
 // Set up body-parser.
 // To parse JSON:
 app.use(bodyParser.json());
