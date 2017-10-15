@@ -1,18 +1,27 @@
-var express = require('express');
-var app = express();
+var http = require("http");
+var url = require("url");
+var querystring = require("querystring");
+var server = http.createServer();
+var port = process.env.PORT || 5000;
 
-app.set('port', (process.env.PORT || 5000));
+server.on("request", function (request, response) {
+  var uri = url.parse(request.url);
+  var qs = uri.query ? querystring.parse(uri.query) : {};
 
-app.use(express.static(__dirname + '/public'));
+  var status = qs.status || 200;
+  var contentType = qs.contentType || "text/plain";
+  var body = qs.body || "hello there!";
 
-// views is directory for all template files
-app.set('views', __dirname + '/views');
-app.set('view engine', 'ejs');
+  response.writeHead(status, {
+    "Content-Type": contentType,
+    "Content-Length": body.length
+  });
 
-app.get('/', function(request, response) {
-  response.render('pages/index');
+  console.log(uri.pathname + " - HTTP " + status + " (" + contentType + "): " + body);
+
+  response.end(body);
 });
 
-app.listen(app.get('port'), function() {
-  console.log('Node app is running on port', app.get('port'));
+server.listen(port, function () {
+  console.log("listening on port " + port);
 });
