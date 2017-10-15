@@ -1,8 +1,3 @@
-
-
-
-
-
 // server.js
 
 // DEPENDENCIES
@@ -17,7 +12,7 @@ var express = require('express'),
 // ===============================================
 
 // Set the port number.
-var port = (process.env.PORT || 8000);
+var   port = Number(process.env.PORT || 8000);
 
 // Set up body-parser.
 // To parse JSON:
