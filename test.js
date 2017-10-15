@@ -1,28 +1,27 @@
-const { spawn } = require('child_process');
-const request = require('request');
-const test = require('tape');
+var http = require("http");
+var url = require("url");
+var querystring = require("querystring");
+var server = http.createServer();
+var port = process.env.PORT || 5000;
 
-// Start the app
-const env = Object.assign({}, process.env, {PORT: 5000});
-const child = spawn('node', ['index.js'], {env});
+server.on("request", function (request, response) {
+  var uri = url.parse(request.url);
+  var qs = uri.query ? querystring.parse(uri.query) : {};
 
-test('responds to requests', (t) => {
-  t.plan(4);
+  var status = qs.status || 200;
+  var contentType = qs.contentType || "text/plain";
+  var body = qs.body || "hello there!";
 
-  // Wait until the server is ready
-  child.stdout.on('data', _ => {
-    // Make a request to our app
-    request('http://127.0.0.1:5000', (error, response, body) => {
-      // stop the server
-      child.kill();
-
-      // No error
-      t.false(error);
-      // Successful response
-      t.equal(response.statusCode, 200);
-      // Assert content checks
-      t.notEqual(body.indexOf("<title>Node.js Getting Started on Heroku</title>"), -1);
-      t.notEqual(body.indexOf("Getting Started with Node on Heroku"), -1);
-    });
+  response.writeHead(status, {
+    "Content-Type": contentType,
+    "Content-Length": body.length
   });
+
+  console.log(uri.pathname + " - HTTP " + status + " (" + contentType + "): " + body);
+
+  response.end(body);
+});
+
+server.listen(port, function () {
+  console.log("listening on port " + port);
 });
