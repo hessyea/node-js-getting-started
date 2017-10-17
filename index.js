@@ -110,7 +110,7 @@ app.get('/', function(req, res) {
         }
       }
     };
-    res.render('index', obj);
+    res.render('views/pages/index', obj);
   });
 });
 
