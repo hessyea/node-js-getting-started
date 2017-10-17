@@ -50,11 +50,12 @@ var db = new Datastore({
 // GET all goals.
 // (Accessed at GET http://localhost:8080/goals)
 app.get('/goals', function(req, res) {
+	backURL=req.header('Referer') || '/';
   db.find({}).sort({
     updatedAt: -1
   }).exec(function(err, goals) {
     if (err) res.send(err);
-    res.redirect('/');
+    res.redirect(backURL);
   });
 });
 
