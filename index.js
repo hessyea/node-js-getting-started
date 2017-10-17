@@ -54,7 +54,7 @@ app.get('/goals', function(req, res) {
     updatedAt: -1
   }).exec(function(err, goals) {
     if (err) res.send(err);
-    res.json(goals);
+    return false;
   });
 });
 
