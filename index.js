@@ -67,7 +67,7 @@ app.post('/goals', function(req, res) {
   db.insert(goal, function(err, goal) {
     if (err) res.send(err);
     //res.json(goal);
-	 return false;
+	 res.redirect(req.get('referer'));
   });
 });
 
