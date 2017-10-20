@@ -54,7 +54,7 @@ app.get('/goals', function(req, res) {
     updatedAt: -1
   }).exec(function(err, goals) {
     if (err) res.send(err);
-    return false;
+   
   });
 });
 
@@ -66,7 +66,8 @@ app.post('/goals', function(req, res) {
   };
   db.insert(goal, function(err, goal) {
     if (err) res.send(err);
-    res.json(goal);
+    -//res.json(goal);
+	 return false;
   });
 });
 
